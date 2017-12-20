@@ -39,8 +39,13 @@ Template.registerForm.events({
 		    	username: usernameVar,
 		        email: emailVar,
 		        password: passwordVar
-		    },function(){
-                 Bert.alert( 'Registration Error.', 'danger', 'growl-top-right' );              
+		    },function(err){
+                 if(err){
+                    Bert.alert(err, 'danger', 'growl-top-right' );
+                 } 
+                 else{
+                    Bert.alert('Registration Successful','success','growl-top-right');
+                 }             
 
             });
     	}
