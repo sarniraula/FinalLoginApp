@@ -1,7 +1,8 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import {meteor} from 'meteor/meteor';
 
-import './main.html';
+
 
 Template.dashboard.events({
     'click .logout': function(event){
@@ -25,12 +26,24 @@ Template.registerForm.events({
         event.preventDefault();
         var usernameVar = event.target.registerUsername.value;
         var passwordVar = event.target.registerPassword.value;
+        var password2Var = event.target.registerPassword2.value;
         var emailVar = event.target.registerEmail.value;
-        Accounts.createUser({
-        	username: usernameVar,
-            email: emailVar,
-            password: passwordVar
-        });
+       
+        if(passwordVar != password2Var){
+
+        Bert.alert( 'Passwords didnt match.', 'danger', 'growl-top-right' );
+
+        }
+        else{
+		    Accounts.createUser({
+		    	username: usernameVar,
+		        email: emailVar,
+		        password: passwordVar
+		    },function(){
+                 Bert.alert( 'Registration Error.', 'danger', 'growl-top-right' );              
+
+            });
+    	}
     },
 });
 
@@ -40,13 +53,14 @@ Template.loginForm.events({
         var usernameVar = event.target.loginUsername.value;
         var passwordVar = event.target.loginPassword.value;
         Meteor.loginWithPassword(usernameVar, passwordVar);
-    }
+        Accounts.onLoginFailure(function(){     
+            Bert.alert( 'Login Forbidden.', 'danger', 'growl-top-right' );  			
+        });
+    },
   });
 
-Accounts.validateNewUser((user) => {
-  if (user.username && user.username.length >= 3) {
-    return true;
-  } else {
-    throw new Meteor.Error(403, 'Username must have at least 3 characters');
-  }
+
+Accounts.onLogout(function(){
+	FlowRouter.go("/");
 });
+
